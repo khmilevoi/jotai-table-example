@@ -1,7 +1,8 @@
 import { PrimitiveAtom } from 'jotai';
 import { SelectionPluginModel, StatusAtom } from './model';
-import { SelectionPluginView } from './ui';
+import { SelectionColumnSymbol, SelectionPluginView } from './ui';
 import { Plugin } from '../../table.model';
+import { Column } from '../../table.model';
 
 export const SelectionPlugin = <Data>({
   $activeItems,
@@ -14,6 +15,13 @@ export const SelectionPlugin = <Data>({
 }): Plugin<Data, SelectionPluginModel<Data>> => {
   return {
     model: new SelectionPluginModel({ $activeItems, $status, getIsActive }),
-    view: SelectionPluginView({getIsActive}),
+    view: SelectionPluginView({ getIsActive }),
+  };
+};
+
+SelectionPlugin.createColumn = <Data>(): Column<Data> => {
+  return {
+    id: 'selection',
+    _libType: SelectionColumnSymbol,
   };
 };

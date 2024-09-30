@@ -6,11 +6,13 @@ import { Status } from './table/plugins/selection/model';
 export type UserDto = {
   name: string;
   email: string;
+  details: string;
 };
 
 export type User = {
   name: string;
   email: string;
+  details: string;
   $isActive: PrimitiveAtom<boolean>;
 };
 
@@ -18,10 +20,12 @@ const mock: UserDto[] = [
   {
     name: 'John',
     email: 'john@email.com',
+    details: 'John '.repeat(3),
   },
   {
     name: 'Bob',
     email: 'bob@email.com',
+    details: 'Bob '.repeat(3),
   },
 ];
 
@@ -35,6 +39,7 @@ export const getUsersEffect = queryAtom<UserDto[]>(async () => {
   mock.push({
     name: name,
     email: `${name}@email.com`,
+    details: `${name} `.repeat(3),
   });
 
   if (mock.length > 5) {
@@ -57,6 +62,7 @@ export const $users = atom<User[]>((get) => {
   return users.map((item) => ({
     name: item.name,
     email: item.email,
+    details: item.details,
     $isActive: activeFamily(item.email),
   }));
 });

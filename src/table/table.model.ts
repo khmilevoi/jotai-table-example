@@ -32,13 +32,7 @@ export class TableModel<Data> {
   }
 
   private readonly $data = atom<Data[]>([]);
-  private api: {
-    initEffect: Atom<void>;
-    $rows: Atom<Row<Data>[]>;
-    $data: PrimitiveAtom<Data[]>;
-    $dataMap: Atom<DataMap<Data>>;
-    $columns: ColumnsAtom<Data>;
-  } | null = null;
+  private api: TableApi<Data, any> | null = null;
 
   init() {
     if (this.api) {
@@ -69,7 +63,14 @@ export class TableModel<Data> {
       });
     });
 
-    this.api = { initEffect, $rows, $dataMap, $columns, $data: this.$data };
+    this.api = {
+      initEffect,
+      $rows,
+      $dataMap,
+      $columns,
+      $data: this.$data,
+      plugins: this.plugins,
+    };
 
     return this.api;
   }
@@ -89,16 +90,31 @@ export class TableModel<Data> {
   }
 }
 
+export type TableApi<Data, Model extends PluginModel<Data>> = {
+  initEffect: Atom<void>;
+  $rows: Atom<Row<Data>[]>;
+  $data: PrimitiveAtom<Data[]>;
+  $dataMap: Atom<DataMap<Data>>;
+  $columns: ColumnsAtom<Data>;
+  plugins: Plugin<Data, Model>[];
+};
+
 export type Row<Data> = {
   id: string;
   $data: PrimitiveAtom<Data>;
 };
 
-export type Column<Data> = {
-  id: string;
-  header: () => ReactNode;
-  cell: (data: Data) => ReactNode;
-};
+export type Column<Data> =
+  | {
+      id: string;
+      header: () => ReactNode;
+      cell: (data: Data, id: string) => ReactNode;
+      _libType?: never;
+    }
+  | {
+      id: string;
+      _libType: Symbol;
+    };
 
 export type ColumnsAtom<Data> = PrimitiveAtom<Column<Data>[]>;
 
@@ -117,16 +133,25 @@ export type DataMapAtom<Data> = Atom<DataMap<Data>>;
 export type DataMap<Data> = Map<string, Atom<Data>>;
 
 export type PluginView<Data, Model extends PluginModel<Data>> = {
-  init(options: InitOptions<Data> & { model: Model }): InitEffect;
+  init(options: PluginApi<Data, Model>): InitEffect;
 
-  renderCell?: (cell: {
-    model: Model;
-    data: Data;
-    column: Column<Data>;
-  }) => ReactNode;
+  renderCell?: (
+    api: PluginApi<Data, Model> & {
+      column: Column<Data>;
+      row: Row<Data>;
+      node: ReactNode;
+    }
+  ) => ReactNode;
 
-  renderHeader?: (header: { model: Model; column: Column<Data> }) => ReactNode;
+  renderRow?: (
+    api: PluginApi<Data, Model> & { row: Row<Data>; node: ReactNode }
+  ) => ReactNode;
 };
+
+export type PluginApi<
+  Data,
+  Model extends PluginModel<Data>
+> = InitOptions<Data> & { model: Model };
 
 export type InitOptions<Data> = {
   $rows: Atom<Row<Data>[]>;

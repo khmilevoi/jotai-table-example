@@ -1,23 +1,31 @@
-import { useEffect, useMemo } from 'react';
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+} from 'react';
 import { ColumnsAtom, TableModel } from './table.model';
 import { Atom } from 'jotai';
 import { useAtomValue } from 'jotai/react';
-import { Column, Row } from '.';
+import { Column, Row, Plugin } from './table.model';
 import { useAtom } from 'jotai/react';
 import { useSetAtom } from 'jotai/react';
+import { TableApi } from 'jotai-table';
 
 export type TableProps<Data> = {
   model: TableModel<Data>;
   data: Data[];
 };
 
-export const Table = <Data extends object>({
+export const Table = <Data extends any>({
   model,
   data: source,
 }: TableProps<Data>) => {
-  const { $rows, initEffect, $columns, $data } = useMemo(() => {
-    return model.init();
-  }, [model]);
+  const { $rows, initEffect, $columns, $data, plugins, $dataMap } =
+    useMemo(() => {
+      return model.init();
+    }, [model]);
 
   const setData = useSetAtom($data);
 
@@ -28,18 +36,26 @@ export const Table = <Data extends object>({
   useAtom(initEffect);
 
   return (
-    <table>
-      <Thead $columns={$columns} />
-      <Tbody $rows={$rows} $columns={$columns} />
-    </table>
+    <TableContext.Provider
+      value={{ $rows, initEffect, $columns, $data, plugins, $dataMap }}
+    >
+      <table>
+        <Thead />
+        <Tbody />
+      </table>
+    </TableContext.Provider>
   );
 };
 
-const Thead = <Data extends object>({
-  $columns,
-}: {
-  $columns: ColumnsAtom<Data>;
-}) => {
+const TableContext = createContext<TableApi<any, any>>(
+  {} as unknown as TableApi<any, any>
+);
+
+const useTable = <Data extends any>() =>
+  useContext<TableApi<Data, any>>(TableContext);
+
+const Thead = <Data extends any>() => {
+  const { $columns } = useTable<Data>();
   const columns = useAtomValue($columns);
 
   return (
@@ -53,17 +69,17 @@ const Thead = <Data extends object>({
   );
 };
 
-const Th = <Data extends object>({ column }: { column: Column<Data> }) => {
+const Th = <Data extends any>({ column }: { column: Column<Data> }) => {
+  if (column._libType) {
+    return null;
+  }
+
   return <th>{column.header()}</th>;
 };
 
-const Tbody = <Data extends object>({
-  $rows,
-  $columns,
-}: {
-  $columns: ColumnsAtom<Data>;
-  $rows: Atom<Row<Data>[]>;
-}) => {
+const Tbody = <Data extends any>() => {
+  const { $columns, $rows } = useTable<Data>();
+
   const columns = useAtomValue($columns);
   const rows = useAtomValue($rows);
 
@@ -76,30 +92,73 @@ const Tbody = <Data extends object>({
   );
 };
 
-const Tr = <Data extends object>({
+const Tr = <Data extends any>({
   columns,
   row,
 }: {
   row: Row<Data>;
   columns: Column<Data>[];
 }) => {
-  return (
+  const { $columns, $dataMap, $rows, plugins } = useTable<Data>();
+
+  const originalRow = (
     <tr>
       {columns.map((column) => (
         <Td row={row} column={column} key={`${row.id}.${column.id}`} />
       ))}
     </tr>
   );
+
+  const rowNode = useMemo(() => {
+    return plugins.reduce<ReactNode>(
+      (result, plugin) =>
+        plugin.view.renderRow?.({
+          node: result,
+          $columns,
+          $dataMap,
+          $rows,
+          row,
+          model: plugin.model,
+        }) ?? result,
+      originalRow
+    );
+  }, []);
+
+  return rowNode;
 };
 
-const Td = <Data extends object>({
+const Td = <Data extends any>({
   row,
   column,
 }: {
   row: Row<Data>;
   column: Column<Data>;
 }) => {
+  const { $columns, $dataMap, $rows, plugins } = useTable<Data>();
+
   const data = useAtomValue(row.$data);
 
-  return <td>{column.cell(data)}</td>;
+  if (column._libType) {
+    return null;
+  }
+
+  const originalCell = <td>{column.cell(data, row.id)}</td>;
+
+  const cellNode = useMemo(() => {
+    return plugins.reduce<ReactNode>(
+      (result, plugin) =>
+        plugin.view.renderCell?.({
+          node: result,
+          $columns,
+          $dataMap,
+          $rows,
+          column,
+          row,
+          model: plugin.model,
+        }) ?? result,
+      originalCell
+    );
+  }, []);
+
+  return cellNode;
 };
