@@ -2,7 +2,7 @@ import { PluginView } from 'jotai-table';
 import { DetailsPluginModel } from './model';
 import { atomEffect } from 'jotai-effect';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai/react';
-import { ReactNode } from 'react';
+import { ReactNode, cloneElement } from 'react';
 
 export const DetailsPluginView = <Data extends any>({
   renderDetails,
@@ -10,35 +10,9 @@ export const DetailsPluginView = <Data extends any>({
   renderDetails: (props: { data: Data }) => ReactNode;
 }): PluginView<Data, DetailsPluginModel<Data>> => {
   return {
-    init: ({ $columns, model }) => {
-      return atomEffect((get, set) => {
-        set($columns, [
-          ...get.peek($columns),
-          {
-            id: 'details-button',
-            header: () => null,
-            cell: (_, id) => {
-              const Cell = () => {
-                const [isCollapsed, setIsCollapsed] = useAtom(
-                  model.getStatus(id)
-                );
-
-                return (
-                  <button
-                    style={{ transform: 'rotateZ(-90deg)', padding: '0' }}
-                    onClick={() => {
-                      setIsCollapsed(!isCollapsed);
-                    }}
-                  >
-                    {isCollapsed ? '<' : '>'}
-                  </button>
-                );
-              };
-
-              return <Cell />;
-            },
-          },
-        ]);
+    init: () => {
+      return atomEffect(() => {
+       
       });
     },
     renderRow: ({ node, model, row, $columns }) => {
@@ -48,11 +22,32 @@ export const DetailsPluginView = <Data extends any>({
         const data = useAtomValue(row.$data);
         const columns = useAtomValue($columns);
 
+        const Cell = () => {
+          const [isCollapsed, setIsCollapsed] = useAtom(
+            model.getStatus(row.id)
+          );
+
+          return (<td>
+            <button
+              style={{ transform: 'rotateZ(-90deg)', padding: '0' }}
+              onClick={() => {
+                setIsCollapsed(!isCollapsed);
+              }}
+            >
+              {isCollapsed ? '<' : '>'}
+            </button>
+            </td>
+          );
+        };
+
         return (
           <>
-            {node}
+            {cloneElement(node, {
+              ...node.props,
+              key: node.key
+            }, [node.props.children, <Cell key={`${row.id}-details-button`}/>])}
             {!isCollapsed && (
-              <tr>
+              <tr key={`${row.id}-details`}>
                 <td colSpan={columns.length}>
                   <div style={{ height: '100%' }}>
                     {renderDetails({ data })}

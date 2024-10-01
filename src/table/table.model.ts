@@ -1,6 +1,6 @@
 import { Atom, atom, PrimitiveAtom } from 'jotai';
 import { atomEffect } from 'jotai-effect';
-import { ReactNode } from 'react';
+import { ReactElement, ReactNode } from 'react';
 
 export class TableModel<Data> {
   private readonly plugins: Plugin<Data, any>[] = [];
@@ -147,17 +147,17 @@ export type PluginView<Data, Model extends PluginModel<Data>> = {
     api: PluginApi<Data, Model> & {
       column: Column<Data>;
       row: Row<Data>;
-      node: ReactNode;
+      node: ReactElement;
     }
-  ) => ReactNode;
+  ) => ReactElement;
 
   renderRow?: (
-    api: PluginApi<Data, Model> & { row: Row<Data>; node: ReactNode }
-  ) => ReactNode;
+    api: PluginApi<Data, Model> & { row: Row<Data>; node: ReactElement }
+  ) => ReactElement;
 
   renderTool?: (
     api: PluginApi<Data, Model> 
-  ) => {left?: ReactNode, right?: ReactNode};
+  ) => {left?: ReactElement, right?: ReactElement};
 };
 
 export type PluginApi<
