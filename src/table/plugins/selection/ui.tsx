@@ -25,7 +25,8 @@ export const SelectionPluginView = <Data extends any>({
           return {
             id: 'isActive',
             header: () => {
-              const status = useAtomValue(model.getStatus());
+              const Header = () => {
+                const status = useAtomValue(model.getStatus());
               const setStatus = useSetAtom(model.setStatus());
 
               return (
@@ -35,22 +36,29 @@ export const SelectionPluginView = <Data extends any>({
                   onChange={(event) => setStatus(event.target.checked)}
                 />
               );
+              }
+
+              return <Header/>
             },
             cell: (data) => {
-              const $isActive = getIsActive(data);
-              const isActive = useAtomValue($isActive);
+              const Cell = () => {
+                const $isActive = getIsActive(data);
+                const isActive = useAtomValue($isActive);
+  
+                const toggle = useAtomCallback((_, set, nextValue: boolean) => {
+                  set($isActive, nextValue);
+                });
+  
+                return (
+                  <input
+                    type="checkbox"
+                    checked={isActive}
+                    onChange={(event) => toggle(event.target.checked)}
+                  />
+                );
+              }
 
-              const toggle = useAtomCallback((_, set, nextValue: boolean) => {
-                set($isActive, nextValue);
-              });
-
-              return (
-                <input
-                  type="checkbox"
-                  checked={isActive}
-                  onChange={(event) => toggle(event.target.checked)}
-                />
-              );
+             return <Cell/>
             },
           };
         })
