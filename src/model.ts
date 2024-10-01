@@ -1,7 +1,7 @@
-import { queryAtom } from 'jotai-async';
-import { atom, PrimitiveAtom } from 'jotai';
-import { atomFamily } from 'jotai/utils';
-import { Status } from './table/plugins/selection/model';
+import {queryAtom} from 'jotai-async';
+import {atom, PrimitiveAtom} from 'jotai';
+import {atomFamily} from 'jotai/utils';
+import {SelectionStatus} from 'jotai-table/plugins/selection'
 
 export type UserDto = {
   name: string;
@@ -67,5 +67,5 @@ export const $users = atom<User[]>((get) => {
   }));
 });
 
-export const $status = atom<Status>('inactive');
+export const $status = atom<SelectionStatus>('inactive');
 export const $activeUsers = atom<User[]>([]);

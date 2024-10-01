@@ -17,6 +17,9 @@ importers:
       jotai-effect:
         specifier: ^1.0.3
         version: 1.0.3(jotai@2.10.0(@types/react@18.3.10)(react@18.3.1))
+      jotai-table:
+        specifier: ^0.3.0
+        version: 0.3.0(jotai@2.10.0(@types/react@18.3.10)(react@18.3.1))(react@18.3.1)(typescript@5.6.2)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -826,6 +829,13 @@ packages:
     resolution: {integrity: sha512-Xye6oVMQkhOmkF9G5gdtwlqG2w9GuMcfYdRS0aV/HeoYCj1LfLJ4O8jQRVT/Zb5hPGOLGNll/x6k5wxifn1jYg==}
     peerDependencies:
       jotai: '>=2.5.0'
+
+  jotai-table@0.3.0:
+    resolution: {integrity: sha512-dxxpo7YunDtT/Ym9wI60cPrk4e3DtnDjwRQ7dmk59F3oFGmexQPyFpEtQAXqzFEn9NocaEXdrLMiUUP7JkI4tw==}
+    peerDependencies:
+      jotai: ^2.10.0
+      react: ^18.3.1
+      typescript: ^5.6.2
 
   jotai@2.10.0:
     resolution: {integrity: sha512-8W4u0aRlOIwGlLQ0sqfl/c6+eExl5D8lZgAUolirZLktyaj4WnxO/8a0HEPmtriQAB6X5LMhXzZVmw02X0P0qQ==}
@@ -1891,6 +1901,13 @@ snapshots:
   jotai-effect@1.0.3(jotai@2.10.0(@types/react@18.3.10)(react@18.3.1)):
     dependencies:
       jotai: 2.10.0(@types/react@18.3.10)(react@18.3.1)
+
+  jotai-table@0.3.0(jotai@2.10.0(@types/react@18.3.10)(react@18.3.1))(react@18.3.1)(typescript@5.6.2):
+    dependencies:
+      jotai: 2.10.0(@types/react@18.3.10)(react@18.3.1)
+      jotai-effect: 1.0.3(jotai@2.10.0(@types/react@18.3.10)(react@18.3.1))
+      react: 18.3.1
+      typescript: 5.6.2
 
   jotai@2.10.0(@types/react@18.3.10)(react@18.3.1):
     optionalDependencies:

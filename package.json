@@ -13,6 +13,7 @@
     "jotai": "^2.10.0",
     "jotai-async": "^0.2.0",
     "jotai-effect": "^1.0.3",
+    "jotai-table": "^0.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

@@ -19,10 +19,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "paths": {
-      "jotai-table": ["./src/table/index.ts"],
-      "jotai-table/plugins/*": ["./src/table/plugins/*/index.ts"]
-    }
   },
 
   "include": ["src"]
