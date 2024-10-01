@@ -65,4 +65,15 @@ export const SelectionPluginView = <Data extends any>({
       );
     });
   },
+  renderTool: ({model}) => {
+    const Tool = () => {
+      const activeItems= useAtomValue(model.getActiveItems());
+
+      return <div>{activeItems.length} items</div>
+    }
+
+    return {
+      left: <Tool/>
+    }
+  }
 });

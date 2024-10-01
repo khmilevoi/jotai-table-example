@@ -17,6 +17,10 @@ export class DetailsPluginModel<Data> implements PluginModel<Data> {
     });
   });
 
+  getIsAllCollapsed() {
+    return this.$isAllCollapsed;
+  }
+
   getStatus(id: string) {
     return this.detailsFamily(id);
   }

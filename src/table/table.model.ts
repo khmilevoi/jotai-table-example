@@ -34,6 +34,8 @@ export class TableModel<Data> {
   private readonly $data = atom<Data[]>([]);
   private api: TableApi<Data, any> | null = null;
 
+  private isInited = false;
+
   init() {
     if (this.api) {
       return this.api;
@@ -44,6 +46,10 @@ export class TableModel<Data> {
     const $columns = atom(this.options.columns);
 
     const initEffect = atomEffect((get) => {
+      if(this.isInited) {
+        return;
+      }
+
       this.plugins.forEach((plugin) => {
         get(
           plugin.model.init({
@@ -61,6 +67,8 @@ export class TableModel<Data> {
           })
         );
       });
+
+      this.isInited = true;
     });
 
     this.api = {
@@ -146,6 +154,10 @@ export type PluginView<Data, Model extends PluginModel<Data>> = {
   renderRow?: (
     api: PluginApi<Data, Model> & { row: Row<Data>; node: ReactNode }
   ) => ReactNode;
+
+  renderTool?: (
+    api: PluginApi<Data, Model> 
+  ) => {left?: ReactNode, right?: ReactNode};
 };
 
 export type PluginApi<

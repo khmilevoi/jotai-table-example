@@ -38,11 +38,13 @@ export const Table = <Data extends any>({
   return (
     <TableContext.Provider
       value={{ $rows, initEffect, $columns, $data, plugins, $dataMap }}
-    >
+    ><div>
+      <Tools/>
       <table>
         <Thead />
         <Tbody />
       </table>
+      </div>
     </TableContext.Provider>
   );
 };
@@ -53,6 +55,40 @@ const TableContext = createContext<TableApi<any, any>>(
 
 const useTable = <Data extends any>() =>
   useContext<TableApi<Data, any>>(TableContext);
+
+
+const Tools = <Data extends any>() => {
+  const { $columns, $dataMap, $rows, plugins } = useTable<Data>();
+
+  const {left, right} = useMemo(() => {
+    return plugins.reduce<{left: ReactNode[], right: ReactNode[]}>((result, plugin) => {
+
+      if(plugin.view.renderTool) {
+        const tool = plugin.view.renderTool({$columns, $dataMap, $rows, model: plugin.model});
+
+        if(tool.left) {
+          result.left.push(tool.left)
+        }
+
+        if(tool.right) {
+          result.right.push(tool.right)
+        }
+      }
+
+      return result;
+    }, {left: [], right: []})
+  }, [])
+
+  return <div style={{display: 'flex', justifyContent: 'space-between'}}>
+    <div style={{display: 'flex'}}>
+      {left}
+    </div>
+
+    <div  style={{display: 'flex'}}>
+      {right}
+    </div>
+  </div>
+}
 
 const Thead = <Data extends any>() => {
   const { $columns } = useTable<Data>();

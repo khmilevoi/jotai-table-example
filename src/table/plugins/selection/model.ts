@@ -22,6 +22,10 @@ export class SelectionPluginModel<Data> implements PluginModel<Data> {
     });
   }
 
+  getActiveItems() {
+    return this.options.$activeItems
+  }
+
   init({ $rows, $dataMap }: InitOptions<Data>): InitEffect {
     const $activeItemsSet = atom(new Set<string>());
 
